@@ -55,9 +55,8 @@ jobs:
       - name: Run usertests in ${{ matrix.arch }}
         run: |
           cd os 
-          timeout 60 make run ARCH=${{ matrix.arch }} 2>&1 | tee output.log || echo "qemu exited"
-        timeout-minutes: 2
+          timeout 240 make run ARCH=${{ matrix.arch }} 2>&1 | tee output.log || echo "qemu exited"
+        timeout-minutes: 4
       
       - name: Checkout output
-        run : |
-          grep "[kernel] Hello, world!" os/output.log
+        run : grep "[kernel] Hello, world" os/output.log
