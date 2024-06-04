@@ -60,4 +60,4 @@ jobs:
       
       - name: Checkout output
         run : |
-          grep -q "[kernel] Hello, world!" os/output.log && exit 1 || exit 0
+          grep "[kernel] Hello, world!" os/output.log
