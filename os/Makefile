@@ -1,7 +1,7 @@
-
 # Building
 TARGET := riscv64gc-unknown-none-elf
 ARCH := riscv64
+
 ifeq ($(ARCH), x86_64)
   TARGET := x86_64-unknown-none
   QEMU_EXEC += qemu-system-x86_64 \
@@ -24,9 +24,12 @@ else ifeq ($(ARCH), loongarch64)
   TARGET := loongarch64-unknown-none
   QEMU_EXEC += qemu-system-$(ARCH) -kernel $(KERNEL_ELF)
   BUS := pci
+else ifeq ($(ARCH), libos)
+  TARGET := x86_64-unknown-linux-gnu
 else
-  $(error "ARCH" must be one of "x86_64", "riscv64", "aarch64" or "loongarch64")
+  $(error "ARCH" must be one of "x86_64", "riscv64", "aarch64", "loongarch64" or "libos")
 endif
+
 MODE := release
 KERNEL_ELF := target/$(TARGET)/$(MODE)/os
 KERNEL_BIN := $(KERNEL_ELF).bin
@@ -49,8 +52,6 @@ OBJCOPY := rust-objcopy --binary-architecture=riscv64
 
 # Disassembly
 DISASM ?= -x
-
-
 
 build: env $(KERNEL_BIN)
 
@@ -79,7 +80,12 @@ disasm-vim: kernel
 	@vim $(DISASM_TMP)
 	@rm $(DISASM_TMP)
 
-run: run-inner
+run:
+ifeq ($(ARCH), libos)
+	@cargo run --target $(TARGET) $(MODE_ARG) -F "libos"
+else
+	@make run-inner
+endif
 
 QEMU_EXEC += -nographic \
 			 -device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA)

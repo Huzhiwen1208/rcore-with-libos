@@ -1,4 +1,4 @@
-name: Build Rust Doc And Run tests
+name: Test Run on ch1
 
 on: [push]
 
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [riscv64, x86_64, aarch64, loongarch64]
+        arch: [riscv64, x86_64, aarch64, loongarch64, libos]
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1

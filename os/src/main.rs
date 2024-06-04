@@ -8,20 +8,24 @@
 //! We then call [`println!`] to display `Hello, world!`.
 
 #![deny(warnings)]
-#![no_std]
+#![cfg_attr(not(feature = "libos"), no_std)]
 #![no_main]
 #![feature(panic_info_message)]
 
-use buddy_system_allocator::LockedHeap;
-use polyhal::TrapFrame;
-use polyhal::TrapType;
+use polyhal::{TrapFrame, TrapType, shutdown};
 
-#[global_allocator]
-static HEAP_ALLOCATOR: LockedHeap = LockedHeap::empty();
+cfg_if::cfg_if! {
+    if #[cfg(not(feature = "libos"))] {
+        #[macro_use]
+        mod console;
 
+        use buddy_system_allocator::LockedHeap;
+        #[global_allocator]
+        static HEAP_ALLOCATOR: LockedHeap = LockedHeap::empty();
+    }
+}
 
-#[macro_use]
-mod console;
+#[cfg(not(feature = "libos"))]
 mod lang_items;
 mod logging;
 
@@ -37,5 +41,5 @@ fn main(hartid: usize) {
         return;
     }
     println!("[kernel] Hello, world!");
-    polyhal::shutdown();
+    shutdown();
 }
